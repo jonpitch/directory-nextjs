@@ -1,65 +1,49 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Link from 'next/link'
+// import styles from '../styles/Index.module.css'
 
-export default function Home() {
+export async function getStaticProps(context) {
+  const data = await fetch('http://localhost:3000/api/companies');
+  const companies = await data.json();
+
+  // for iteration speed
+  const subset = companies.slice(0, 20)
+
+  return {
+    props: {
+      companies: subset
+    }
+  }
+}
+
+export async function getStaticPaths() {
+  const data = await fetch('http://localhost:3000/api/companies');
+  const companies = await data.json();
+  const paths = companies.map((c) => {
+    return { params: { slug: c.slug }};
+  });
+
+  return {
+    paths,
+    fallback: false
+  }
+}
+
+export default function Home({ companies }) {
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>Directory - NextJS</title>
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      <ul>
+        {companies && companies.map((company) => (
+          <li>
+            <Link href={`/company/${encodeURIComponent(company.slug)}`}>
+              <a>{company.name}</a>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
