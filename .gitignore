@@ -34,3 +34,4 @@ yarn-error.log*
 .vercel
 
 /pages/_data/companies.json
+/pages/api/companies.js
